@@ -15,7 +15,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
+                git credentialsId: 'tour_admin',
+                    branch: 'main',
                     url: 'https://github.com/your-org/your-frontend-repo.git'
             }
         }
