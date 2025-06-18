@@ -54,7 +54,6 @@ pipeline {
 
         post {
             failure {
-                // 실패 시 알림 등
                 echo '빌드 실패!'
             }
         }
