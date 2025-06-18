@@ -17,7 +17,7 @@ pipeline {
             steps {
                 git credentialsId: 'tour_admin',
                     branch: 'main',
-                    url: 'https://github.com/your-org/your-frontend-repo.git'
+                    url: 'https://github.com/NOLAH-YONG/nolahyongFrontend.git'
             }
         }
 
