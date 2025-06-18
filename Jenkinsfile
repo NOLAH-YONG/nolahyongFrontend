@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS 24.2.0' // Jenkins에 등록한 NodeJS 이름
+        nodejs 'NodeJS 22' // Jenkins에 등록한 NodeJS 이름
     }
 
     environment {
@@ -18,7 +18,7 @@ pipeline {
                 cleanWs()
             }
         }
-        
+
         stage('Checkout') {
             steps {
                 git credentialsId: 'tour_admin',
