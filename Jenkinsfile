@@ -37,25 +37,13 @@ pipeline {
             }
         }
 
-        stage('React Native Bundle') {
+        stage('Android Build') {
             steps {
-                // assets 디렉터리 생성
-                sh 'mkdir -p android/app/src/main/assets'
-                // JS 번들 생성
-                sh 'npx react-native bundle --platform android --dev false --entry-file index.tsx --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/'
+                sh 'npm install -g expo-cli'
+                sh 'expo run:android'
             }
         }
 
-        stage('Android Build') {
-            steps {
-                dir('android') {
-                    // gradlew 실행 권한 부여
-                    sh 'chmod +x gradlew'
-                    // 릴리즈 APK 빌드
-                    sh './gradlew assembleRelease'
-                }
-            }
-        }
     }
 
     post {
