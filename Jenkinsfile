@@ -1,5 +1,5 @@
 pipeline {
-    
+
     agent any
 
     tools {
@@ -50,11 +50,11 @@ pipeline {
                 sh 'npx react-native bundle --platform android --dev false --entry-file index.tsx --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/'
             }
         }
+    }
 
-        post {
-            failure {
-                echo '빌드 실패!'
-            }
+    post {
+        failure {
+            echo '빌드 실패!'
         }
     }
 }
