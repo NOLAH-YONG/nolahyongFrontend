@@ -21,29 +21,41 @@ pipeline {
             }
         }
 
-        stage('Install & Build') {
+    stages {
+        stage('Install dependencies') {
             steps {
-                sh 'npm install'
-                sh 'npm run build'
+                sh 'npm ci'
             }
         }
 
-        stage('Deploy') {
+        stage('Lint') {
             steps {
-                withCredentials([sshUserPrivateKey(
-                    credentialsId: 'frontend-ssh',
-                    keyFileVariable: 'SSH_KEY'
-                )]) {
-                    sh '''
-                    # 필요시 배포 경로 생성
-                    ssh -p $REMOTE_PORT -i $SSH_KEY -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "mkdir -p $DEPLOY_PATH"
-                    # 빌드 산출물 복사
-                    scp -P $REMOTE_PORT -i $SSH_KEY -o StrictHostKeyChecking=no -r dist/* $REMOTE_USER@$REMOTE_HOST:$DEPLOY_PATH/
-                    # Nginx 재시작
-                    ssh -p $REMOTE_PORT -i $SSH_KEY -o StrictHostKeyChecking=no $REMOTE_USER@$REMOTE_HOST "sudo systemctl restart nginx"
-                    '''
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test -- --coverage'
+            }
+            post {
+                always {
+                    junit 'junit.xml'
                 }
             }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npx react-native bundle --platform android --dev false --entry-file index.tsx --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/'
+            }
+        }
+    }
+
+    post {
+        failure {
+            // 실패 시 알림 등
+            echo '빌드 실패!'
         }
     }
 }
