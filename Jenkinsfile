@@ -5,23 +5,10 @@ pipeline {
         nodejs 'NodeJS 22'
     }
 
-    environment {
-        ANDROID_HOME = '/opt/android-sdk' // 실제 SDK 경로로 수정
-        JAVA_HOME = '/usr/lib/jvm/java-21-openjdk-amd64' // 실제 Java 21 경로로 수정
-        PATH = "$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
-    }
-
     stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()
-            }
-        }
-
         stage('Checkout') {
             steps {
-                git credentialsId: 'tour_admin',
-                    branch: 'main',
+                git branch: 'main',
                     url: 'https://github.com/NOLAH-YONG/nolahyongFrontend.git'
             }
         }
@@ -32,28 +19,20 @@ pipeline {
             }
         }
 
-        stage('Android Build') {
+        stage('Start Metro Bundler') {
             steps {
-                dir('android') {
-                    sh 'chmod +x gradlew'
-                    sh './gradlew assembleRelease --no-daemon'
-                }
-            }
-        }
-
-        stage('Archive APK') {
-            steps {
-                archiveArtifacts artifacts: 'android/app/build/outputs/apk/release/*.apk', fingerprint: true
+                // 백그라운드로 개발 서버 실행 (CI에서는 주로 테스트용으로 활용)
+                sh 'nohup npx expo start --no-interactive --clear > metro.log 2>&1 &'
             }
         }
     }
 
     post {
         success {
-            echo 'Android APK 빌드 성공!'
+            echo '✅ 개발용 빌드(메트로 번들러) 실행 성공!'
         }
         failure {
-            echo 'Android APK 빌드 실패!'
+            echo '❌ 개발용 빌드(메트로 번들러) 실행 실패!'
         }
     }
 }
