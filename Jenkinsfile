@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS 22' // Jenkins에 등록한 NodeJS 이름
+        nodejs 'NodeJS 22'
     }
 
     environment {
-        ANDROID_HOME = '/opt/android-sdk' // Android SDK 경로 설정
-        JAVA_HOME = '/usr/lib/jvm/java-17-openjdk-amd64' // Java 홈 설정
+        ANDROID_HOME = '/opt/android-sdk' // 실제 SDK 경로로 수정
+        JAVA_HOME = '/usr/lib/jvm/java-21-openjdk-amd64' // 실제 Java 21 경로로 수정
+        PATH = "$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
     }
 
     stages {
@@ -31,27 +32,28 @@ pipeline {
             }
         }
 
-        stage('Lint') {
-            steps {
-                sh 'npm run lint'
-            }
-        }
-
         stage('Android Build') {
             steps {
-                sh 'npm install -g expo-cli'
-                sh 'expo run:android'
+                dir('android') {
+                    sh 'chmod +x gradlew'
+                    sh './gradlew assembleRelease --no-daemon'
+                }
             }
         }
 
+        stage('Archive APK') {
+            steps {
+                archiveArtifacts artifacts: 'android/app/build/outputs/apk/release/*.apk', fingerprint: true
+            }
+        }
     }
 
     post {
-        failure {
-            echo '빌드 실패!'
-        }
         success {
-            echo '빌드 성공!'
+            echo 'Android APK 빌드 성공!'
+        }
+        failure {
+            echo 'Android APK 빌드 실패!'
         }
     }
 }
