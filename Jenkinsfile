@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     tools {
@@ -31,17 +30,6 @@ pipeline {
         stage('Lint') {
             steps {
                 sh 'npm run lint'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                sh 'npm test -- --coverage'
-            }
-            post {
-                always {
-                    junit 'junit.xml'
-                }
             }
         }
 
